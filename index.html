@@ -8,195 +8,92 @@
 <title>防災ダッシュボード</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --bg: #f5f5f0;
-    --card-bg: #ffffff;
-    --text: #1a1a18;
-    --text-sub: #6b6b67;
-    --text-hint: #a0a09c;
-    --border: rgba(0,0,0,0.10);
-    --border-strong: rgba(0,0,0,0.18);
-    --radius: 14px;
-    --radius-sm: 8px;
-    --blue-bg: #E6F1FB; --blue-tx: #185FA5;
-    --green-bg: #EAF3DE; --green-tx: #3B6D11;
-    --amber-bg: #FAEEDA; --amber-tx: #854F0B;
-    --red-bg: #FCEBEB; --red-tx: #A32D2D;
-    --s1-bg:#E6F1FB;--s1-tx:#0C447C;
-    --s2-bg:#EAF3DE;--s2-tx:#27500A;
-    --s3-bg:#FAEEDA;--s3-tx:#633806;
-    --s4-bg:#FAC775;--s4-tx:#412402;
-    --s5-bg:#F7C1C1;--s5-tx:#791F1F;
-    --s6-bg:#F09595;--s6-tx:#501313;
+    --bg: #f5f5f0; --card-bg: #ffffff; --text: #1a1a18; --text-sub: #6b6b67;
+    --text-hint: #a0a09c; --border: rgba(0,0,0,0.10); --border-strong: rgba(0,0,0,0.18);
+    --radius: 14px; --radius-sm: 8px;
+    --blue-bg:#E6F1FB;--blue-tx:#185FA5;--green-bg:#EAF3DE;--green-tx:#3B6D11;
+    --amber-bg:#FAEEDA;--amber-tx:#854F0B;--red-bg:#FCEBEB;--red-tx:#A32D2D;
+    --s1-bg:#E6F1FB;--s1-tx:#0C447C;--s2-bg:#EAF3DE;--s2-tx:#27500A;
+    --s3-bg:#FAEEDA;--s3-tx:#633806;--s4-bg:#FAC775;--s4-tx:#412402;
+    --s5-bg:#F7C1C1;--s5-tx:#791F1F;--s6-bg:#F09595;--s6-tx:#501313;
     --s7-bg:#E24B4A;--s7-tx:#ffffff;
   }
-
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #1c1c1a;
-      --card-bg: #282825;
-      --text: #f0efea;
-      --text-sub: #a0a09c;
-      --text-hint: #6b6b67;
-      --border: rgba(255,255,255,0.10);
-      --border-strong: rgba(255,255,255,0.18);
-      --blue-bg:#0C447C;--blue-tx:#B5D4F4;
-      --green-bg:#27500A;--green-tx:#C0DD97;
-      --amber-bg:#633806;--amber-tx:#FAC775;
-      --red-bg:#791F1F;--red-tx:#F7C1C1;
+      --bg:#1c1c1a;--card-bg:#282825;--text:#f0efea;--text-sub:#a0a09c;
+      --text-hint:#6b6b67;--border:rgba(255,255,255,0.10);--border-strong:rgba(255,255,255,0.18);
+      --blue-bg:#0C447C;--blue-tx:#B5D4F4;--green-bg:#27500A;--green-tx:#C0DD97;
+      --amber-bg:#633806;--amber-tx:#FAC775;--red-bg:#791F1F;--red-tx:#F7C1C1;
     }
   }
-
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    padding: 12px;
-    padding-bottom: 32px;
-    -webkit-text-size-adjust: 100%;
+    background: var(--bg); color: var(--text);
+    padding: 12px; padding-bottom: 32px; -webkit-text-size-adjust: 100%;
   }
-
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-    padding: 0 2px;
-  }
-  .header-title { font-size: 17px; font-weight: 600; }
-  .header-sub { font-size: 12px; color: var(--text-hint); margin-top: 1px; }
+  .header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; padding:0 2px; }
+  .header-title { font-size:17px; font-weight:600; }
+  .header-sub { font-size:12px; color:var(--text-hint); margin-top:1px; }
   .refresh-btn {
-    font-size: 13px;
-    padding: 6px 14px;
-    border-radius: 20px;
-    border: 0.5px solid var(--border-strong);
-    background: var(--card-bg);
-    color: var(--text-sub);
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
+    font-size:13px; padding:6px 14px; border-radius:20px;
+    border:0.5px solid var(--border-strong); background:var(--card-bg);
+    color:var(--text-sub); cursor:pointer; -webkit-tap-highlight-color:transparent;
   }
-  .refresh-btn:active { opacity: 0.6; }
-
+  .refresh-btn:active { opacity:0.6; }
   .card {
-    background: var(--card-bg);
-    border-radius: var(--radius);
-    border: 0.5px solid var(--border);
-    padding: 14px 16px;
-    margin-bottom: 10px;
+    background:var(--card-bg); border-radius:var(--radius);
+    border:0.5px solid var(--border); padding:14px 16px; margin-bottom:10px;
   }
-  .card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
-  .card-title {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-sub);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-
-  .badge {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 10px;
-    border-radius: 20px;
-  }
-  .badge-blue   { background: var(--blue-bg);  color: var(--blue-tx); }
-  .badge-green  { background: var(--green-bg); color: var(--green-tx); }
-  .badge-amber  { background: var(--amber-bg); color: var(--amber-tx); }
-  .badge-red    { background: var(--red-bg);   color: var(--red-tx); }
-
-  /* 地震リスト */
-  .quake-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 9px 0;
-    border-bottom: 0.5px solid var(--border);
-  }
-  .quake-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .card-title { font-size:12px; font-weight:600; color:var(--text-sub); letter-spacing:0.05em; text-transform:uppercase; }
+  .badge { font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; }
+  .badge-blue  { background:var(--blue-bg);  color:var(--blue-tx); }
+  .badge-green { background:var(--green-bg); color:var(--green-tx); }
+  .badge-amber { background:var(--amber-bg); color:var(--amber-tx); }
+  .badge-red   { background:var(--red-bg);   color:var(--red-tx); }
+  .quake-item { display:flex; align-items:flex-start; gap:10px; padding:9px 0; border-bottom:0.5px solid var(--border); }
+  .quake-item:last-child { border-bottom:none; padding-bottom:0; }
   .shindo {
-    min-width: 36px; height: 36px;
-    border-radius: var(--radius-sm);
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 15px; flex-shrink: 0;
+    min-width:36px; height:36px; border-radius:var(--radius-sm);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:15px; flex-shrink:0;
   }
-  .s1{background:var(--s1-bg);color:var(--s1-tx)}
-  .s2{background:var(--s2-bg);color:var(--s2-tx)}
-  .s3{background:var(--s3-bg);color:var(--s3-tx)}
-  .s4{background:var(--s4-bg);color:var(--s4-tx)}
-  .s5{background:var(--s5-bg);color:var(--s5-tx)}
-  .s6{background:var(--s6-bg);color:var(--s6-tx)}
+  .s1{background:var(--s1-bg);color:var(--s1-tx)}.s2{background:var(--s2-bg);color:var(--s2-tx)}
+  .s3{background:var(--s3-bg);color:var(--s3-tx)}.s4{background:var(--s4-bg);color:var(--s4-tx)}
+  .s5{background:var(--s5-bg);color:var(--s5-tx)}.s6{background:var(--s6-bg);color:var(--s6-tx)}
   .s7{background:var(--s7-bg);color:var(--s7-tx)}
-  .quake-info { flex: 1; min-width: 0; }
-  .quake-place {
-    font-size: 14px; font-weight: 500;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .quake-detail { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
-  .quake-mag { font-size: 13px; font-weight: 600; color: var(--text-sub); white-space: nowrap; }
-
-  /* 天気予報 */
-  .wx-block { margin-bottom: 14px; }
-  .wx-block:last-child { margin-bottom: 0; }
-  .wx-region-label {
-    font-size: 11px; font-weight: 600; color: var(--text-hint);
-    letter-spacing: 0.06em; margin-bottom: 8px;
-  }
-  .wx-today {
-    display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px;
-  }
-  .wx-icon { font-size: 32px; line-height: 1; }
-  .wx-today-text { }
-  .wx-today-name { font-size: 15px; font-weight: 600; }
-  .wx-today-desc { font-size: 12px; color: var(--text-sub); margin-top: 3px; line-height: 1.5; }
-  .forecast-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; }
-  .fc-day {
-    background: var(--bg);
-    border-radius: var(--radius-sm);
-    padding: 8px 6px;
-    text-align: center;
-  }
-  .fc-label { font-size: 11px; color: var(--text-sub); }
-  .fc-ico   { font-size: 20px; margin: 3px 0; }
-  .fc-rain  { font-size: 11px; color: var(--blue-tx); }
-  .fc-temp  { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
-  .wx-divider {
-    border: none; border-top: 0.5px solid var(--border);
-    margin: 12px 0;
-  }
-
-  /* 警報 */
-  .warn-region { margin-bottom: 14px; }
-  .warn-region:last-child { margin-bottom: 0; }
-  .warn-region-label {
-    font-size: 12px; font-weight: 600; color: var(--text-sub);
-    margin-bottom: 6px;
-  }
-  .warn-item {
-    display: flex; align-items: flex-start; gap: 8px;
-    padding: 6px 0; border-bottom: 0.5px solid var(--border);
-    font-size: 13px;
-  }
-  .warn-item:last-child { border-bottom: none; }
-  .warn-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    flex-shrink: 0; margin-top: 4px;
-  }
-  .dot-red    { background: #E24B4A; }
-  .dot-orange { background: #EF9F27; }
-  .dot-green  { background: #639922; }
-  .warn-area  { font-weight: 500; min-width: 72px; }
-  .warn-types { color: var(--text-sub); font-size: 12px; }
-
-  .no-data   { font-size: 13px; color: var(--text-hint); padding: 6px 0; }
-  .loading   { font-size: 13px; color: var(--text-hint); padding: 16px 0; text-align: center; }
-  .error-msg { font-size: 13px; color: var(--red-tx); padding: 6px 0; }
-  .timestamp { font-size: 10px; color: var(--text-hint); margin-top: 10px; text-align: right; }
+  .quake-info { flex:1; min-width:0; }
+  .quake-place { font-size:14px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .quake-detail { font-size:11px; color:var(--text-sub); margin-top:2px; }
+  .quake-mag { font-size:13px; font-weight:600; color:var(--text-sub); white-space:nowrap; }
+  .wx-block { margin-bottom:14px; }
+  .wx-block:last-child { margin-bottom:0; }
+  .wx-region-label { font-size:11px; font-weight:600; color:var(--text-hint); letter-spacing:0.06em; margin-bottom:8px; }
+  .wx-today { display:flex; align-items:flex-start; gap:10px; margin-bottom:10px; }
+  .wx-icon { font-size:32px; line-height:1; }
+  .wx-today-name { font-size:15px; font-weight:600; }
+  .wx-today-desc { font-size:12px; color:var(--text-sub); margin-top:3px; line-height:1.5; }
+  .forecast-row { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+  .fc-day { background:var(--bg); border-radius:var(--radius-sm); padding:8px 6px; text-align:center; }
+  .fc-label { font-size:11px; color:var(--text-sub); }
+  .fc-ico { font-size:20px; margin:3px 0; }
+  .fc-rain { font-size:11px; color:var(--blue-tx); }
+  .fc-temp { font-size:11px; color:var(--text-sub); margin-top:2px; }
+  .wx-divider { border:none; border-top:0.5px solid var(--border); margin:12px 0; }
+  .warn-region { margin-bottom:14px; }
+  .warn-region:last-child { margin-bottom:0; }
+  .warn-region-label { font-size:12px; font-weight:600; color:var(--text-sub); margin-bottom:6px; }
+  .warn-item { display:flex; align-items:flex-start; gap:8px; padding:6px 0; border-bottom:0.5px solid var(--border); font-size:13px; }
+  .warn-item:last-child { border-bottom:none; }
+  .warn-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:4px; }
+  .dot-red{background:#E24B4A}.dot-orange{background:#EF9F27}.dot-green{background:#639922}
+  .warn-area { font-weight:500; min-width:72px; }
+  .warn-types { color:var(--text-sub); font-size:12px; }
+  .no-data { font-size:13px; color:var(--text-hint); padding:6px 0; }
+  .loading { font-size:13px; color:var(--text-hint); padding:16px 0; text-align:center; }
+  .error-msg { font-size:13px; color:var(--red-tx); padding:6px 0; }
+  .timestamp { font-size:10px; color:var(--text-hint); margin-top:10px; text-align:right; }
 </style>
 </head>
 <body>
@@ -209,7 +106,6 @@
   <button class="refresh-btn" onclick="loadAll()">↺ 更新</button>
 </div>
 
-<!-- 地震 -->
 <div class="card">
   <div class="card-header">
     <span class="card-title">最近の地震</span>
@@ -219,7 +115,6 @@
   <div class="timestamp" id="quake-ts"></div>
 </div>
 
-<!-- 天気予報 -->
 <div class="card">
   <div class="card-header">
     <span class="card-title">天気予報</span>
@@ -229,7 +124,6 @@
   <div class="timestamp" id="wx-ts"></div>
 </div>
 
-<!-- 気象警報 -->
 <div class="card">
   <div class="card-header">
     <span class="card-title">警報・注意報</span>
@@ -240,13 +134,12 @@
 </div>
 
 <script>
-const PROXY = 'https://api.allorigins.win/raw?url=';
-const EP = {
-  quake:    'https://www.jma.go.jp/bosai/quake/data/list.json',
-  fcKana:   'https://www.jma.go.jp/bosai/forecast/data/forecast/140000.json',
-  fcTokyo:  'https://www.jma.go.jp/bosai/forecast/data/forecast/130000.json',
-  warnKana: 'https://www.jma.go.jp/bosai/warning/data/warning/140000.json',
-  warnTky:  'https://www.jma.go.jp/bosai/warning/data/warning/130000.json',
+const DATA = {
+  quake:    'data/quake.json',
+  fcKana:   'data/forecast_kanagawa.json',
+  fcTokyo:  'data/forecast_tokyo.json',
+  warnKana: 'data/warning_kanagawa.json',
+  warnTky:  'data/warning_tokyo.json',
 };
 
 const WX_ICONS = {
@@ -257,175 +150,171 @@ const WX_ICONS = {
   '308':'⛈','311':'🌧','313':'🌧','400':'❄️','401':'🌨','403':'❄️','450':'⛈'
 };
 
-function getIcon(c){ return WX_ICONS[c]||WX_ICONS[(c||'').slice(0,2)+'0']||'🌡️'; }
-
-function shindoClass(s){
-  const n=parseFloat(s);
-  if(n>=6)return's7';if(n>=5)return's6';if(n>=4)return's5';
-  if(n>=3)return's4';if(n>=2)return's3';if(n>=1)return's2';return's1';
+function getIcon(c) { return WX_ICONS[c] || WX_ICONS[(c||'').slice(0,2)+'0'] || '🌡️'; }
+function shindoClass(s) {
+  const n = parseFloat(s);
+  if (n >= 6) return 's7'; if (n >= 5) return 's6'; if (n >= 4) return 's5';
+  if (n >= 3) return 's4'; if (n >= 2) return 's3'; if (n >= 1) return 's2'; return 's1';
 }
-function fmtShindo(s){
-  if(!s)return'?';const n=parseFloat(s);
-  if(n>=5.5)return'6強';if(n>=5.0)return'6弱';if(n>=4.5)return'5強';if(n>=4.0)return'5弱';
-  return Math.round(n)+'';
+function fmtShindo(s) {
+  if (!s) return '?'; const n = parseFloat(s);
+  if (n >= 5.5) return '6強'; if (n >= 5.0) return '6弱';
+  if (n >= 4.5) return '5強'; if (n >= 4.0) return '5弱';
+  return Math.round(n) + '';
 }
-function nowJST(){ return new Date().toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',hour12:false}); }
-function dayLabel(iso){
-  const d=new Date(iso);const days=['日','月','火','水','木','金','土'];
-  return(d.getMonth()+1)+'/'+d.getDate()+'('+days[d.getDay()]+')';
+function nowJST() { return new Date().toLocaleString('ja-JP', {timeZone:'Asia/Tokyo', hour12:false}); }
+function dayLabel(iso) {
+  const d = new Date(iso); const days = ['日','月','火','水','木','金','土'];
+  return (d.getMonth()+1) + '/' + d.getDate() + '(' + days[d.getDay()] + ')';
 }
-
-async function jfetch(url){
-  const r=await fetch(PROXY+encodeURIComponent(url),{cache:'no-store'});
-  if(!r.ok)throw new Error(r.status);
+async function jfetch(path) {
+  const r = await fetch(path + '?t=' + Date.now(), { cache: 'no-store' });
+  if (!r.ok) throw new Error(r.status);
   return r.json();
 }
 
-/* ---- 地震 ---- */
-async function loadQuakes(){
-  try{
-    const data=await jfetch(EP.quake);
-    const items=data.slice(0,8);
-    let h='';
-    for(const q of items){
-      const sc=shindoClass(q.maxi||'1');
-      const place=(q.anm||'不明').replace(/（.*?）/g,'');
-      const dt=new Date(q.at);
-      const ts=dt.toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',hour12:false,
-        month:'numeric',day:'numeric',hour:'numeric',minute:'2-digit'});
-      h+=`<div class="quake-item">
-        <div class="shindo ${sc}">${fmtShindo(q.maxi||'1')}</div>
+async function loadQuakes() {
+  try {
+    const data = await jfetch(DATA.quake);
+    const items = data.slice(0, 8);
+    let h = '';
+    for (const q of items) {
+      const sc = shindoClass(q.maxi || '1');
+      const place = (q.anm || '不明').replace(/（.*?）/g, '');
+      const dt = new Date(q.at);
+      const ts = dt.toLocaleString('ja-JP', {timeZone:'Asia/Tokyo', hour12:false, month:'numeric', day:'numeric', hour:'numeric', minute:'2-digit'});
+      const dep = q.dep && q.dep !== '-' ? q.dep + 'km' : '不明';
+      h += `<div class="quake-item">
+        <div class="shindo ${sc}">${fmtShindo(q.maxi || '1')}</div>
         <div class="quake-info">
           <div class="quake-place">${place}</div>
-          <div class="quake-detail">${ts}　深さ${q.dep??'?'}km</div>
+          <div class="quake-detail">${ts}　深さ${dep}</div>
         </div>
-        <div class="quake-mag">${q.mag?'M'+q.mag:''}</div>
+        <div class="quake-mag">${q.mag ? 'M' + q.mag : ''}</div>
       </div>`;
     }
-    document.getElementById('quake-list').innerHTML=h||'<div class="no-data">データなし</div>';
-    document.getElementById('quake-badge').textContent='過去1ヶ月';
-    document.getElementById('quake-ts').textContent='更新: '+nowJST();
-  }catch(e){
-    document.getElementById('quake-list').innerHTML='<div class="error-msg">取得失敗。更新ボタンでリトライ</div>';
-    document.getElementById('quake-badge').textContent='エラー';
-    document.getElementById('quake-badge').className='badge badge-amber';
+    document.getElementById('quake-list').innerHTML = h || '<div class="no-data">データなし</div>';
+    document.getElementById('quake-badge').textContent = '過去1ヶ月';
+    document.getElementById('quake-badge').className = 'badge badge-blue';
+    document.getElementById('quake-ts').textContent = '更新: ' + nowJST();
+  } catch(e) {
+    document.getElementById('quake-list').innerHTML = '<div class="error-msg">データ未取得です。しばらくお待ちください。</div>';
+    document.getElementById('quake-badge').textContent = '準備中';
+    document.getElementById('quake-badge').className = 'badge badge-amber';
   }
 }
 
-/* ---- 天気 ---- */
-function buildWxBlock(data, regionName){
-  try{
-    const ts=data[0].timeSeries;
-    const wxS=ts[0],rainS=ts[1],tmpS=ts[2];
-    const area=wxS.areas[0];
-    const codes=area.weatherCodes||[];
-    const wxs=area.weathers||[];
-    const times=wxS.timeDefines;
-    const rainA=rainS?rainS.areas[0]:null;
-    const pops=rainA?rainA.pops||[]:[];
-    let temps=[];
-    if(tmpS){
-      const ta=tmpS.areas[0];
-      if(ta){const mn=ta.tempsMin||[],mx=ta.tempsMax||[];
-        for(let i=0;i<Math.max(mn.length,mx.length);i++)temps.push({min:mn[i]||'',max:mx[i]||''});}
+function buildWxBlock(data, regionName) {
+  try {
+    const ts = data[0].timeSeries;
+    const wxS = ts[0], rainS = ts[1], tmpS = ts[2];
+    const area = wxS.areas[0];
+    const codes = area.weatherCodes || [];
+    const wxs = area.weathers || [];
+    const times = wxS.timeDefines;
+    const rainA = rainS ? rainS.areas[0] : null;
+    const pops = rainA ? rainA.pops || [] : [];
+    let temps = [];
+    if (tmpS) {
+      const ta = tmpS.areas[0];
+      if (ta) {
+        const mn = ta.tempsMin || [], mx = ta.tempsMax || [];
+        for (let i = 0; i < Math.max(mn.length, mx.length); i++)
+          temps.push({min: mn[i] || '', max: mx[i] || ''});
+      }
     }
-    const desc=(wxs[0]||'').replace(/\s+/g,' ').trim();
-    let h=`<div class="wx-block">
+    const desc = (wxs[0] || '').replace(/\s+/g, ' ').trim();
+    let h = `<div class="wx-block">
       <div class="wx-region-label">${regionName}</div>
       <div class="wx-today">
         <div class="wx-icon">${getIcon(codes[0])}</div>
-        <div class="wx-today-text">
+        <div>
           <div class="wx-today-name">${area.area.name}</div>
           <div class="wx-today-desc">${desc.slice(0,60)}${desc.length>60?'…':''}</div>
         </div>
       </div>
       <div class="forecast-row">`;
-    for(let i=0;i<Math.min(3,times.length);i++){
-      const lbl=i===0?'今日':i===1?'明日':dayLabel(times[i]);
-      const rain=pops[i*2]!=null?pops[i*2]+'%':pops[i]!=null?pops[i]+'%':'-';
-      const tmp=temps[i]?(temps[i].min?temps[i].min+'°':'')+(temps[i].min&&temps[i].max?' / ':'')+(temps[i].max?temps[i].max+'°':''):'';
-      h+=`<div class="fc-day">
+    for (let i = 0; i < Math.min(3, times.length); i++) {
+      const lbl = i===0?'今日':i===1?'明日':dayLabel(times[i]);
+      const rain = pops[i*2]!=null?pops[i*2]+'%':pops[i]!=null?pops[i]+'%':'-';
+      const tmp = temps[i]?(temps[i].min?temps[i].min+'°':'')+(temps[i].min&&temps[i].max?' / ':'')+(temps[i].max?temps[i].max+'°':''):'';
+      h += `<div class="fc-day">
         <div class="fc-label">${lbl}</div>
         <div class="fc-ico">${getIcon(codes[i])}</div>
         <div class="fc-rain">☂ ${rain}</div>
         ${tmp?`<div class="fc-temp">${tmp}</div>`:''}
       </div>`;
     }
-    h+='</div></div>';
-    return h;
-  }catch(e){ return `<div class="error-msg">${regionName}: 解析エラー</div>`; }
+    return h + '</div></div>';
+  } catch(e) { return `<div class="error-msg">${regionName}: 解析エラー</div>`; }
 }
 
-async function loadWeather(){
-  try{
-    const [dk,dt]=await Promise.all([jfetch(EP.fcKana),jfetch(EP.fcTokyo)]);
-    const h=buildWxBlock(dk,'横浜・神奈川県')
-          +'<hr class="wx-divider">'
-          +buildWxBlock(dt,'東京');
-    document.getElementById('wx-body').innerHTML=h;
-    document.getElementById('wx-badge').textContent='取得済';
-    document.getElementById('wx-badge').className='badge badge-green';
-    document.getElementById('wx-ts').textContent='更新: '+nowJST();
-  }catch(e){
-    document.getElementById('wx-body').innerHTML='<div class="error-msg">取得失敗。更新ボタンでリトライ</div>';
-    document.getElementById('wx-badge').textContent='エラー';
-    document.getElementById('wx-badge').className='badge badge-amber';
+async function loadWeather() {
+  try {
+    const [dk, dt] = await Promise.all([jfetch(DATA.fcKana), jfetch(DATA.fcTokyo)]);
+    document.getElementById('wx-body').innerHTML =
+      buildWxBlock(dk,'横浜・神奈川県') + '<hr class="wx-divider">' + buildWxBlock(dt,'東京');
+    document.getElementById('wx-badge').textContent = '取得済';
+    document.getElementById('wx-badge').className = 'badge badge-green';
+    document.getElementById('wx-ts').textContent = '更新: ' + nowJST();
+  } catch(e) {
+    document.getElementById('wx-body').innerHTML = '<div class="error-msg">データ未取得です。しばらくお待ちください。</div>';
+    document.getElementById('wx-badge').textContent = '準備中';
+    document.getElementById('wx-badge').className = 'badge badge-amber';
   }
 }
 
-/* ---- 警報 ---- */
-function buildWarnSection(data,regionName){
-  const areas=data.areaTypes||[];
-  let warns=[];
-  for(const at of areas)
-    for(const a of at.areas||[])
-      for(const w of a.warnings||[])
-        if(w.status&&w.status!=='解除'&&w.status!=='発表なし')
-          warns.push({area:a.name,type:w.type,status:w.status});
-
-  let h=`<div class="warn-region"><div class="warn-region-label">${regionName}</div>`;
-  if(warns.length===0){
-    h+='<div class="warn-item"><div class="warn-dot dot-green"></div><span class="warn-types">現在、発表中の警報・注意報なし</span></div>';
-  }else{
-    const byArea={};
-    for(const w of warns){if(!byArea[w.area])byArea[w.area]=[];byArea[w.area].push(w.type);}
-    for(const [area,types] of Object.entries(byArea).slice(0,12)){
-      const isWarn=types.some(t=>t.includes('警報')&&!t.includes('注意報'));
-      h+=`<div class="warn-item">
+function buildWarnSection(data, regionName) {
+  const areas = data.areaTypes || [];
+  let warns = [];
+  for (const at of areas)
+    for (const a of at.areas||[])
+      for (const w of a.warnings||[])
+        if (w.status && w.status!=='解除' && w.status!=='発表なし')
+          warns.push({area:a.name, type:w.type});
+  let h = `<div class="warn-region"><div class="warn-region-label">${regionName}</div>`;
+  if (warns.length === 0) {
+    h += '<div class="warn-item"><div class="warn-dot dot-green"></div><span class="warn-types">現在、発表中の警報・注意報なし</span></div>';
+  } else {
+    const byArea = {};
+    for (const w of warns) { if(!byArea[w.area])byArea[w.area]=[]; byArea[w.area].push(w.type); }
+    for (const [area, types] of Object.entries(byArea).slice(0,12)) {
+      const isWarn = types.some(t => t.includes('警報') && !t.includes('注意報'));
+      h += `<div class="warn-item">
         <div class="warn-dot ${isWarn?'dot-red':'dot-orange'}"></div>
         <div class="warn-area">${area}</div>
         <div class="warn-types">${types.join('　')}</div>
       </div>`;
     }
-    const rem=Object.keys(byArea).length-12;
-    if(rem>0)h+=`<div class="no-data">他${rem}地区...</div>`;
+    const rem = Object.keys(byArea).length - 12;
+    if (rem > 0) h += `<div class="no-data">他${rem}地区...</div>`;
   }
-  return h+'</div>';
+  return h + '</div>';
 }
 
-async function loadWarnings(){
-  try{
-    const [dk,dt]=await Promise.all([jfetch(EP.warnKana),jfetch(EP.warnTky)]);
-    document.getElementById('warn-body').innerHTML=buildWarnSection(dk,'神奈川県')+buildWarnSection(dt,'東京都');
-
-    const allData=[dk,dt];
-    const hasWarn=allData.some(d=>(d.areaTypes||[]).some(at=>(at.areas||[]).some(a=>(a.warnings||[]).some(w=>w.status&&w.status!=='解除'&&w.status!=='発表なし'&&w.type&&w.type.includes('警報')&&!w.type.includes('注意報')))));
-    const hasNote=allData.some(d=>(d.areaTypes||[]).some(at=>(at.areas||[]).some(a=>(a.warnings||[]).some(w=>w.status&&w.status!=='解除'&&w.status!=='発表なし'))));
-    const b=document.getElementById('warn-badge');
-    if(hasWarn){b.textContent='警報発表中';b.className='badge badge-red';}
-    else if(hasNote){b.textContent='注意報発表中';b.className='badge badge-amber';}
-    else{b.textContent='発表なし';b.className='badge badge-green';}
-    document.getElementById('warn-ts').textContent='更新: '+nowJST();
-  }catch(e){
-    document.getElementById('warn-body').innerHTML='<div class="error-msg">取得失敗。更新ボタンでリトライ</div>';
-    document.getElementById('warn-badge').textContent='エラー';
-    document.getElementById('warn-badge').className='badge badge-amber';
+async function loadWarnings() {
+  try {
+    const [dk, dt] = await Promise.all([jfetch(DATA.warnKana), jfetch(DATA.warnTky)]);
+    document.getElementById('warn-body').innerHTML =
+      buildWarnSection(dk,'神奈川県') + buildWarnSection(dt,'東京都');
+    const allData = [dk, dt];
+    const hasWarn = allData.some(d=>(d.areaTypes||[]).some(at=>(at.areas||[]).some(a=>(a.warnings||[]).some(w=>w.status&&w.status!=='解除'&&w.status!=='発表なし'&&w.type&&w.type.includes('警報')&&!w.type.includes('注意報')))));
+    const hasNote = allData.some(d=>(d.areaTypes||[]).some(at=>(at.areas||[]).some(a=>(a.warnings||[]).some(w=>w.status&&w.status!=='解除'&&w.status!=='発表なし'))));
+    const b = document.getElementById('warn-badge');
+    if (hasWarn) { b.textContent='警報発表中'; b.className='badge badge-red'; }
+    else if (hasNote) { b.textContent='注意報発表中'; b.className='badge badge-amber'; }
+    else { b.textContent='発表なし'; b.className='badge badge-green'; }
+    document.getElementById('warn-ts').textContent = '更新: ' + nowJST();
+  } catch(e) {
+    document.getElementById('warn-body').innerHTML = '<div class="error-msg">データ未取得です。しばらくお待ちください。</div>';
+    document.getElementById('warn-badge').textContent = '準備中';
+    document.getElementById('warn-badge').className = 'badge badge-amber';
   }
 }
 
-function loadAll(){ loadQuakes(); loadWeather(); loadWarnings(); }
+function loadAll() { loadQuakes(); loadWeather(); loadWarnings(); }
 loadAll();
-setInterval(loadAll, 5*60*1000);
+setInterval(loadAll, 10 * 60 * 1000);
 </script>
 </body>
 </html>
