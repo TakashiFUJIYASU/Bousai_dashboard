@@ -1,0 +1,30 @@
+name: Fetch JMA Data
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # 1時間ごとに実行
+  workflow_dispatch:       # 手動実行も可能
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch JMA data
+        run: |
+          mkdir -p data
+          curl -s "https://www.jma.go.jp/bosai/quake/data/list.json" -o data/quake.json
+          curl -s "https://www.jma.go.jp/bosai/forecast/data/forecast/140000.json" -o data/forecast_kanagawa.json
+          curl -s "https://www.jma.go.jp/bosai/forecast/data/forecast/130000.json" -o data/forecast_tokyo.json
+          curl -s "https://www.jma.go.jp/bosai/warning/data/warning/140000.json" -o data/warning_kanagawa.json
+          curl -s "https://www.jma.go.jp/bosai/warning/data/warning/130000.json" -o data/warning_tokyo.json
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/
+          git diff --staged --quiet || git commit -m "Update JMA data"
+          git push
