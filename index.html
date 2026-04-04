@@ -136,7 +136,23 @@ const DATA = {
   warnTky:  'data/warning_tokyo.json',
 };
 
-// 気象庁の警報・注意報コード → 名称変換
+// 神奈川・東京の地区コード→地区名（気象庁 area.json の class10s より）
+const AREA_NAMES = {
+  // 神奈川
+  '140010': '東部',
+  '140020': '西部',
+  // 東京
+  '130010': '東京地方',
+  '130020': '伊豆諸島北部',
+  '130030': '伊豆諸島南部',
+  '130040': '小笠原諸島',
+};
+
+function areaName(code) {
+  return AREA_NAMES[String(code)] || String(code);
+}
+
+// 警報・注意報コード → 名称
 const WARN_CODES = {
   '02':'大雪警報','03':'暴風雪警報','04':'大雨警報','05':'洪水警報',
   '06':'暴風警報','07':'波浪警報','08':'高潮警報','10':'暴風雪注意報',
@@ -147,12 +163,10 @@ const WARN_CODES = {
   '35':'大雨特別警報','36':'暴風特別警報','37':'波浪特別警報','38':'高潮特別警報',
 };
 
-// 警報かどうか判定（特別警報・警報）
 function isAlertLevel(code) {
   const c = String(code).padStart(2,'0');
   return c.startsWith('3') || ['02','03','04','05','06','07','08'].includes(c);
 }
-
 function codeToName(code) {
   return WARN_CODES[String(code).padStart(2,'0')] || '警報・注意報('+code+')';
 }
@@ -167,40 +181,48 @@ const WX_ICONS = {
 
 function getIcon(c) { return WX_ICONS[c] || WX_ICONS[(c||'').slice(0,2)+'0'] || '🌡️'; }
 function shindoClass(s) {
-  const n = parseFloat(s);
-  if (n>=6) return 's7'; if (n>=5) return 's6'; if (n>=4) return 's5';
-  if (n>=3) return 's4'; if (n>=2) return 's3'; if (n>=1) return 's2'; return 's1';
+  const n=parseFloat(s);
+  if(n>=6)return's7';if(n>=5)return's6';if(n>=4)return's5';
+  if(n>=3)return's4';if(n>=2)return's3';if(n>=1)return's2';return's1';
 }
 function fmtShindo(s) {
-  if (!s) return '?'; const n = parseFloat(s);
-  if (n>=5.5) return '6強'; if (n>=5.0) return '6弱';
-  if (n>=4.5) return '5強'; if (n>=4.0) return '5弱';
+  if(!s)return'?';const n=parseFloat(s);
+  if(n>=5.5)return'6強';if(n>=5.0)return'6弱';
+  if(n>=4.5)return'5強';if(n>=4.0)return'5弱';
   return Math.round(n)+'';
 }
 function nowJST() { return new Date().toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',hour12:false}); }
 function dayLabel(iso) {
-  const d=new Date(iso); const days=['日','月','火','水','木','金','土'];
-  return (d.getMonth()+1)+'/'+d.getDate()+'('+days[d.getDay()]+')';
+  const d=new Date(iso);const days=['日','月','火','水','木','金','土'];
+  return(d.getMonth()+1)+'/'+d.getDate()+'('+days[d.getDay()]+')';
 }
 async function jfetch(path) {
-  const r = await fetch(path+'?t='+Date.now(), {cache:'no-store'});
-  if (!r.ok) throw new Error(r.status);
+  const r=await fetch(path+'?t='+Date.now(),{cache:'no-store'});
+  if(!r.ok)throw new Error(r.status);
   return r.json();
 }
 
 /* ---- 地震 ---- */
 async function loadQuakes() {
   try {
-    const data = await jfetch(DATA.quake);
-    const items = data.slice(0,8);
-    let h = '';
-    for (const q of items) {
-      const sc = shindoClass(q.maxi||'1');
-      const place = (q.anm||'不明').replace(/（.*?）/g,'');
-      const dt = new Date(q.at);
-      const ts = dt.toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',hour12:false,month:'numeric',day:'numeric',hour:'numeric',minute:'2-digit'});
-      const dep = q.dep && q.dep!=='-' ? q.dep+'km' : '不明';
-      h += `<div class="quake-item">
+    const data=await jfetch(DATA.quake);
+    const items=data.slice(0,8);
+    let h='';
+    for(const q of items){
+      const sc=shindoClass(q.maxi||'1');
+      const place=(q.anm||'不明').replace(/（.*?）/g,'');
+      const dt=new Date(q.at);
+      const ts=dt.toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',hour12:false,month:'numeric',day:'numeric',hour:'numeric',minute:'2-digit'});
+      // 深さは cod フィールド "+緯度+経度-深さm/" から取得
+      let dep = '不明';
+      if (q.cod) {
+        const m = q.cod.match(/-(\d+)\//);
+        if (m) {
+          const meters = parseInt(m[1]);
+          dep = meters >= 1000 ? (meters/1000) + 'km' : meters + 'm';
+        }
+      }
+      h+=`<div class="quake-item">
         <div class="shindo ${sc}">${fmtShindo(q.maxi||'1')}</div>
         <div class="quake-info">
           <div class="quake-place">${place}</div>
@@ -209,177 +231,124 @@ async function loadQuakes() {
         <div class="quake-mag">${q.mag?'M'+q.mag:''}</div>
       </div>`;
     }
-    document.getElementById('quake-list').innerHTML = h||'<div class="no-data">データなし</div>';
-    document.getElementById('quake-badge').textContent = '過去1ヶ月';
-    document.getElementById('quake-badge').className = 'badge badge-blue';
-    document.getElementById('quake-ts').textContent = '更新: '+nowJST();
-  } catch(e) {
-    document.getElementById('quake-list').innerHTML = '<div class="error-msg">データ未取得です。しばらくお待ちください。</div>';
-    document.getElementById('quake-badge').textContent = '準備中';
-    document.getElementById('quake-badge').className = 'badge badge-amber';
+    document.getElementById('quake-list').innerHTML=h||'<div class="no-data">データなし</div>';
+    document.getElementById('quake-badge').textContent='過去1ヶ月';
+    document.getElementById('quake-badge').className='badge badge-blue';
+    document.getElementById('quake-ts').textContent='更新: '+nowJST();
+  }catch(e){
+    document.getElementById('quake-list').innerHTML='<div class="error-msg">データ未取得です。しばらくお待ちください。</div>';
+    document.getElementById('quake-badge').textContent='準備中';
+    document.getElementById('quake-badge').className='badge badge-amber';
   }
 }
 
 /* ---- 天気 ---- */
-function buildWxBlock(data, regionName) {
-  try {
-    const ts = data[0].timeSeries;
-    const wxS=ts[0], rainS=ts[1], tmpS=ts[2];
-    const area = wxS.areas[0];
-    const codes = area.weatherCodes||[];
-    const wxs = area.weathers||[];
-    const times = wxS.timeDefines;
-    const rainA = rainS?rainS.areas[0]:null;
-    const pops = rainA?rainA.pops||[]:[];
-    let temps = [];
-    if (tmpS) {
-      const ta = tmpS.areas[0];
-      if (ta) {
-        const mn=ta.tempsMin||[], mx=ta.tempsMax||[];
-        for (let i=0;i<Math.max(mn.length,mx.length);i++) temps.push({min:mn[i]||'',max:mx[i]||''});
-      }
-    }
-    const desc = (wxs[0]||'').replace(/\s+/g,' ').trim();
-    let h = `<div class="wx-block">
+function buildWxBlock(data,regionName){
+  try{
+    const ts=data[0].timeSeries;
+    const wxS=ts[0],rainS=ts[1],tmpS=ts[2];
+    const area=wxS.areas[0];
+    const codes=area.weatherCodes||[];
+    const wxs=area.weathers||[];
+    const times=wxS.timeDefines;
+    const rainA=rainS?rainS.areas[0]:null;
+    const pops=rainA?rainA.pops||[]:[];
+    let temps=[];
+    if(tmpS){const ta=tmpS.areas[0];if(ta){const mn=ta.tempsMin||[],mx=ta.tempsMax||[];for(let i=0;i<Math.max(mn.length,mx.length);i++)temps.push({min:mn[i]||'',max:mx[i]||''}); }}
+    const desc=(wxs[0]||'').replace(/\s+/g,' ').trim();
+    let h=`<div class="wx-block">
       <div class="wx-region-label">${regionName}</div>
       <div class="wx-today">
         <div class="wx-icon">${getIcon(codes[0])}</div>
-        <div>
-          <div class="wx-today-name">${area.area.name}</div>
-          <div class="wx-today-desc">${desc.slice(0,60)}${desc.length>60?'…':''}</div>
-        </div>
-      </div>
-      <div class="forecast-row">`;
-    for (let i=0;i<Math.min(3,times.length);i++) {
-      const lbl = i===0?'今日':i===1?'明日':dayLabel(times[i]);
-      const rain = pops[i*2]!=null?pops[i*2]+'%':pops[i]!=null?pops[i]+'%':'-';
-      const tmp = temps[i]?(temps[i].min?temps[i].min+'°':'')+(temps[i].min&&temps[i].max?' / ':'')+(temps[i].max?temps[i].max+'°':''):'';
-      h += `<div class="fc-day">
-        <div class="fc-label">${lbl}</div>
-        <div class="fc-ico">${getIcon(codes[i])}</div>
-        <div class="fc-rain">☂ ${rain}</div>
-        ${tmp?`<div class="fc-temp">${tmp}</div>`:''}
-      </div>`;
+        <div><div class="wx-today-name">${area.area.name}</div>
+        <div class="wx-today-desc">${desc.slice(0,60)}${desc.length>60?'…':''}</div></div>
+      </div><div class="forecast-row">`;
+    for(let i=0;i<Math.min(3,times.length);i++){
+      const lbl=i===0?'今日':i===1?'明日':dayLabel(times[i]);
+      const rain=pops[i*2]!=null?pops[i*2]+'%':pops[i]!=null?pops[i]+'%':'-';
+      const tmp=temps[i]?(temps[i].min?temps[i].min+'°':'')+(temps[i].min&&temps[i].max?' / ':'')+(temps[i].max?temps[i].max+'°':''):'';
+      h+=`<div class="fc-day"><div class="fc-label">${lbl}</div><div class="fc-ico">${getIcon(codes[i])}</div><div class="fc-rain">☂ ${rain}</div>${tmp?`<div class="fc-temp">${tmp}</div>`:''}</div>`;
     }
     return h+'</div></div>';
-  } catch(e) { return `<div class="error-msg">${regionName}: 解析エラー</div>`; }
+  }catch(e){return`<div class="error-msg">${regionName}: 解析エラー</div>`;}
 }
 
-async function loadWeather() {
-  try {
-    const [dk,dt] = await Promise.all([jfetch(DATA.fcKana),jfetch(DATA.fcTokyo)]);
-    document.getElementById('wx-body').innerHTML =
-      buildWxBlock(dk,'横浜・神奈川県')+'<hr class="wx-divider">'+buildWxBlock(dt,'東京');
-    document.getElementById('wx-badge').textContent = '取得済';
-    document.getElementById('wx-badge').className = 'badge badge-green';
-    document.getElementById('wx-ts').textContent = '更新: '+nowJST();
-  } catch(e) {
-    document.getElementById('wx-body').innerHTML = '<div class="error-msg">データ未取得です。しばらくお待ちください。</div>';
-    document.getElementById('wx-badge').textContent = '準備中';
-    document.getElementById('wx-badge').className = 'badge badge-amber';
+async function loadWeather(){
+  try{
+    const [dk,dt]=await Promise.all([jfetch(DATA.fcKana),jfetch(DATA.fcTokyo)]);
+    document.getElementById('wx-body').innerHTML=buildWxBlock(dk,'横浜・神奈川県')+'<hr class="wx-divider">'+buildWxBlock(dt,'東京');
+    document.getElementById('wx-badge').textContent='取得済';
+    document.getElementById('wx-badge').className='badge badge-green';
+    document.getElementById('wx-ts').textContent='更新: '+nowJST();
+  }catch(e){
+    document.getElementById('wx-body').innerHTML='<div class="error-msg">データ未取得です。しばらくお待ちください。</div>';
+    document.getElementById('wx-badge').textContent='準備中';
+    document.getElementById('wx-badge').className='badge badge-amber';
   }
 }
 
 /* ---- 警報 ---- */
-function buildWarnSection(data, regionName) {
-  // headlineText を見出しとして表示
-  const headline = data.headlineText || '';
+function buildWarnSection(data,regionName){
+  const headline=data.headlineText||'';
+  const areaTypes=data.areaTypes||[];
+  const firstType=areaTypes[0]||{};
+  const areas=firstType.areas||[];
 
-  // areaTypes[0].areas から地区ごとの警報コードを収集
-  const areaTypes = data.areaTypes || [];
-  // 最初のareaType（市町村レベル）を使う
-  const firstType = areaTypes[0] || {};
-  const areas = firstType.areas || [];
-
-  // 地区ごとに発表中の警報・注意報をまとめる
-  // warnings配列: {code, status} status が "発表" or "継続" のものを対象
-  const byArea = {};
-  for (const area of areas) {
-    const active = (area.warnings||[]).filter(w => w.status==='発表'||w.status==='継続');
-    if (active.length > 0) {
-      byArea[area.code] = { codes: active.map(w=>w.code) };
-    }
+  const byArea={};
+  for(const area of areas){
+    const active=(area.warnings||[]).filter(w=>w.status==='発表'||w.status==='継続');
+    if(active.length>0) byArea[area.code]={codes:active.map(w=>w.code)};
   }
 
-  // 地区コード→地区名のマップを同じareaTypesから作る
-  // 気象庁の警報JSONには地区名が含まれないため、コードの上位桁で大まかにグループ化
-  // より上位のareaType（2番目以降）に地区名がある場合もある
-  // ここでは地区コードをそのまま使い、上位のエリア名で代替する
-  const areaNameMap = {};
-  for (const at of areaTypes) {
-    for (const a of (at.areas||[])) {
-      if (a.name) areaNameMap[a.code] = a.name;
-    }
-  }
+  let h=`<div class="warn-region"><div class="warn-region-label">${regionName}</div>`;
+  if(headline) h+=`<div class="warn-headline">${headline}</div>`;
 
-  let h = `<div class="warn-region"><div class="warn-region-label">${regionName}</div>`;
-
-  if (headline) {
-    h += `<div class="warn-headline">${headline}</div>`;
-  }
-
-  const areaEntries = Object.entries(byArea);
-  if (areaEntries.length === 0) {
-    h += '<div class="warn-item"><div class="warn-dot dot-green"></div><span class="warn-types">現在、発表中の警報・注意報なし</span></div>';
-  } else {
-    // 警報があるエリアを先に表示、最大20件
-    const sorted = areaEntries.sort((a,b) => {
-      const aHas = a[1].codes.some(c=>isAlertLevel(c));
-      const bHas = b[1].codes.some(c=>isAlertLevel(c));
-      return bHas - aHas;
+  const areaEntries=Object.entries(byArea);
+  if(areaEntries.length===0){
+    h+='<div class="warn-item"><div class="warn-dot dot-green"></div><span class="warn-types">現在、発表中の警報・注意報なし</span></div>';
+  }else{
+    const sorted=areaEntries.sort((a,b)=>{
+      const aH=a[1].codes.some(c=>isAlertLevel(c));
+      const bH=b[1].codes.some(c=>isAlertLevel(c));
+      return bH-aH;
     });
-    for (const [code, info] of sorted.slice(0,20)) {
-      const name = areaNameMap[code] || code;
-      const hasWarn = info.codes.some(c=>isAlertLevel(c));
-      const typeNames = info.codes.map(c=>codeToName(c)).join('　');
-      h += `<div class="warn-item">
+    for(const [code,info] of sorted.slice(0,20)){
+      const name=areaName(code);
+      const hasWarn=info.codes.some(c=>isAlertLevel(c));
+      const typeNames=info.codes.map(c=>codeToName(c)).join('　');
+      h+=`<div class="warn-item">
         <div class="warn-dot ${hasWarn?'dot-red':'dot-orange'}"></div>
         <div class="warn-area">${name}</div>
         <div class="warn-types">${typeNames}</div>
       </div>`;
     }
-    if (sorted.length > 20) h += `<div class="no-data">他${sorted.length-20}地区...</div>`;
+    if(sorted.length>20) h+=`<div class="no-data">他${sorted.length-20}地区...</div>`;
   }
   return h+'</div>';
 }
 
-async function loadWarnings() {
-  try {
-    const [dk,dt] = await Promise.all([jfetch(DATA.warnKana),jfetch(DATA.warnTky)]);
-    document.getElementById('warn-body').innerHTML =
-      buildWarnSection(dk,'神奈川県')+buildWarnSection(dt,'東京都');
-
-    // バッジ判定
-    const allData = [dk,dt];
-    const hasWarn = allData.some(d=>{
-      for (const at of d.areaTypes||[])
-        for (const a of at.areas||[])
-          for (const w of a.warnings||[])
-            if ((w.status==='発表'||w.status==='継続') && isAlertLevel(w.code)) return true;
-      return false;
-    });
-    const hasNote = allData.some(d=>{
-      for (const at of d.areaTypes||[])
-        for (const a of at.areas||[])
-          for (const w of a.warnings||[])
-            if (w.status==='発表'||w.status==='継続') return true;
-      return false;
-    });
-    const b = document.getElementById('warn-badge');
-    if (hasWarn) { b.textContent='警報発表中'; b.className='badge badge-red'; }
-    else if (hasNote) { b.textContent='注意報発表中'; b.className='badge badge-amber'; }
-    else { b.textContent='発表なし'; b.className='badge badge-green'; }
-    document.getElementById('warn-ts').textContent = '更新: '+nowJST();
-  } catch(e) {
-    document.getElementById('warn-body').innerHTML = '<div class="error-msg">データ未取得です。しばらくお待ちください。</div>';
-    document.getElementById('warn-badge').textContent = '準備中';
-    document.getElementById('warn-badge').className = 'badge badge-amber';
+async function loadWarnings(){
+  try{
+    const [dk,dt]=await Promise.all([jfetch(DATA.warnKana),jfetch(DATA.warnTky)]);
+    document.getElementById('warn-body').innerHTML=buildWarnSection(dk,'神奈川県')+buildWarnSection(dt,'東京都');
+    const allData=[dk,dt];
+    const hasWarn=allData.some(d=>(d.areaTypes||[]).some(at=>(at.areas||[]).some(a=>(a.warnings||[]).some(w=>(w.status==='発表'||w.status==='継続')&&isAlertLevel(w.code)))));
+    const hasNote=allData.some(d=>(d.areaTypes||[]).some(at=>(at.areas||[]).some(a=>(a.warnings||[]).some(w=>w.status==='発表'||w.status==='継続'))));
+    const b=document.getElementById('warn-badge');
+    if(hasWarn){b.textContent='警報発表中';b.className='badge badge-red';}
+    else if(hasNote){b.textContent='注意報発表中';b.className='badge badge-amber';}
+    else{b.textContent='発表なし';b.className='badge badge-green';}
+    document.getElementById('warn-ts').textContent='更新: '+nowJST();
+  }catch(e){
+    document.getElementById('warn-body').innerHTML='<div class="error-msg">データ未取得です。しばらくお待ちください。</div>';
+    document.getElementById('warn-badge').textContent='準備中';
+    document.getElementById('warn-badge').className='badge badge-amber';
   }
 }
 
-function loadAll() { loadQuakes(); loadWeather(); loadWarnings(); }
+function loadAll(){loadQuakes();loadWeather();loadWarnings();}
 loadAll();
-setInterval(loadAll, 10*60*1000);
+setInterval(loadAll,10*60*1000);
 </script>
 </body>
 </html>
