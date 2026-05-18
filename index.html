@@ -232,7 +232,7 @@ async function loadQuakes() {
       </div>`;
     }
     document.getElementById('quake-list').innerHTML=h||'<div class="no-data">データなし</div>';
-    document.getElementById('quake-badge').textContent='過去1ヶ月';
+    document.getElementById('quake-badge').textContent='最新8件';
     document.getElementById('quake-badge').className='badge badge-blue';
     document.getElementById('quake-ts').textContent='更新: '+nowJST();
   }catch(e){
