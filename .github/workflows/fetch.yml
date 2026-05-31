@@ -1,4 +1,4 @@
-name: Fetch JMA Data
+namename: Fetch JMA Data
 
 on:
   schedule:
@@ -21,8 +21,8 @@ jobs:
           curl -s "https://www.jma.go.jp/bosai/quake/data/list.json" -o data/quake.json
           curl -s "https://www.jma.go.jp/bosai/forecast/data/forecast/140000.json" -o data/forecast_kanagawa.json
           curl -s "https://www.jma.go.jp/bosai/forecast/data/forecast/130000.json" -o data/forecast_tokyo.json
-          curl -s "https://www.jma.go.jp/bosai/warning/data/warning/140000.json" -o data/warning_kanagawa.json
-          curl -s "https://www.jma.go.jp/bosai/warning/data/warning/130000.json" -o data/warning_tokyo.json
+          curl -s "https://www.jma.go.jp/bosai/warning/data/r8/140000.json" -o data/warning_kanagawa.json
+          curl -s "https://www.jma.go.jp/bosai/warning/data/r8/130000.json" -o data/warning_tokyo.json
 
       - name: Commit and push
         run: |
