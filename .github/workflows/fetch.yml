@@ -1,4 +1,4 @@
-namename: Fetch JMA Data
+name: Fetch JMA Data
 
 on:
   schedule:
